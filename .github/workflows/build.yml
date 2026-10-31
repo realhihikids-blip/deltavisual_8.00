@@ -2,7 +2,6 @@ name: build
 
 on:
   push:
-  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -20,28 +19,9 @@ jobs:
         with:
           gradle-version: "9.2.0"
 
-      - name: Создать Gradle wrapper, если его нет
-        if: ${{ hashFiles('gradle/wrapper/gradle-wrapper.jar') == '' }}
-        run: |
-          mkdir /tmp/wrapper
-          cd /tmp/wrapper
-          gradle wrapper --gradle-version 9.2.0
-          cd "$GITHUB_WORKSPACE"
-          mkdir -p gradle/wrapper
-          cp /tmp/wrapper/gradle/wrapper/gradle-wrapper.jar gradle/wrapper/
+      - run: gradle build --stacktrace
 
-      - name: Дать права на запуск gradlew
-        run: chmod +x gradlew
-
-      - name: Сборка
-        run: ./gradlew build --stacktrace
-
-      - name: Загрузить jar
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: delta-visuals-jar
-          path: |
-            build/libs/*.jar
-            !build/libs/*-sources.jar
-            !build/libs/*-dev.jar
-          if-no-files-found: error
+          name: jar
+          path: build/libs/*.jar
