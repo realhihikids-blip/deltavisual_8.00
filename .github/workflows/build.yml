@@ -22,7 +22,13 @@ jobs:
 
       - name: Создать Gradle wrapper, если его нет
         if: ${{ hashFiles('gradle/wrapper/gradle-wrapper.jar') == '' }}
-        run: gradle wrapper --gradle-version 9.2.0
+        run: |
+          mkdir /tmp/wrapper
+          cd /tmp/wrapper
+          gradle wrapper --gradle-version 9.2.0
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p gradle/wrapper
+          cp /tmp/wrapper/gradle/wrapper/gradle-wrapper.jar gradle/wrapper/
 
       - name: Дать права на запуск gradlew
         run: chmod +x gradlew
